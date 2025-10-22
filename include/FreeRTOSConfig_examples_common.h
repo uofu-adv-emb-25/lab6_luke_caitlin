@@ -28,6 +28,8 @@
 #ifndef FREERTOS_CONFIG_EXAMPLES_COMMON_H
 #define FREERTOS_CONFIG_EXAMPLES_COMMON_H
 
+#include "timer.h"
+
 /*-----------------------------------------------------------
  * Application specific definitions.
  *
@@ -80,10 +82,13 @@
 #define configUSE_MALLOC_FAILED_HOOK            0
 #define configUSE_DAEMON_TASK_STARTUP_HOOK      0
 
+#define portCONFIGURE_TIMER_FOR_RUN_TIME_STATS() timer_configure()
+#define portGET_RUN_TIME_COUNTER_VALUE() timer_count()
+
 /* Run time and task stats gathering related definitions. */
-#define configGENERATE_RUN_TIME_STATS           0
+#define configGENERATE_RUN_TIME_STATS           1
 #define configUSE_TRACE_FACILITY                1
-#define configUSE_STATS_FORMATTING_FUNCTIONS    0
+#define configUSE_STATS_FORMATTING_FUNCTIONS    1
 
 /* Co-routine related definitions. */
 #define configUSE_CO_ROUTINES                   0
