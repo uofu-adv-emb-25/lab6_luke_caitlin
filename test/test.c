@@ -90,6 +90,29 @@ void test_priority_inheritance(void)
     vTaskDelete(task_3);
 }
 
+void test_busy_busy(void)
+{
+    TaskHandle_t task_1;
+    TaskHandle_t task_2;
+
+    xTaskCreate(busy_busy, "task_1", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY+1, &task_1);
+    xTaskCreate(busy_busy, "task_2", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY+1, &task_2);
+
+    vTaskDelay(200);
+
+    configRUN_TIME_COUNTER_TYPE time_1 = ulTaskGetRunTimeCounter(task_1);
+    configRUN_TIME_COUNTER_TYPE time_2 = ulTaskGetRunTimeCounter(task_2);
+    printf("%ul %ul\n", time_1, time_2);
+}
+
+void test_busy_yield(void)
+{
+}
+
+void test_busy_both(void)
+{
+}
+
 void supervisor(void *params)
 {
     while (1) {
@@ -98,6 +121,7 @@ void supervisor(void *params)
         UNITY_BEGIN();
         RUN_TEST(test_priority_inversion);
         RUN_TEST(test_priority_inheritance);
+        RUN_TEST(test_busy_busy);
         UNITY_END();
     }
 }
