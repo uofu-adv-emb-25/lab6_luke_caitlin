@@ -102,26 +102,109 @@ void test_busy_busy(void)
 
     configRUN_TIME_COUNTER_TYPE time_1 = ulTaskGetRunTimeCounter(task_1);
     configRUN_TIME_COUNTER_TYPE time_2 = ulTaskGetRunTimeCounter(task_2);
-    printf("%ul %ul\n", time_1, time_2);
+    
+    printf("Task1 runtime: %lu, Task2 runtime: %lu, ratio: %.2f\n",
+       time_1, time_2, (float)time_1 / (float)(time_2 + 1));
+
+    vTaskDelete(task_1);
+    vTaskDelete(task_2);
+
 }
 
 void test_busy_yield(void)
 {
+    TaskHandle_t task_1;
+    TaskHandle_t task_2;
+
+    xTaskCreate(busy_yield, "task_1", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY+1, &task_1);
+    xTaskCreate(busy_yield, "task_2", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY+1, &task_2);
+
+    vTaskDelay(200);
+
+    configRUN_TIME_COUNTER_TYPE time_1 = ulTaskGetRunTimeCounter(task_1);
+    configRUN_TIME_COUNTER_TYPE time_2 = ulTaskGetRunTimeCounter(task_2);
+    
+    printf("Task1 runtime: %lu, Task2 runtime: %lu, ratio: %.2f\n",
+       time_1, time_2, (float)time_1 / (float)(time_2 + 1));
+
+    vTaskDelete(task_1);
+    vTaskDelete(task_2);
 }
 
 void test_busy_both(void)
 {
+    TaskHandle_t task_1;
+    TaskHandle_t task_2;
+
+    xTaskCreate(busy_busy, "task_1", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY+1, &task_1);
+    xTaskCreate(busy_yield, "task_2", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY+1, &task_2);
+
+    vTaskDelay(200);
+
+    configRUN_TIME_COUNTER_TYPE time_1 = ulTaskGetRunTimeCounter(task_1);
+    configRUN_TIME_COUNTER_TYPE time_2 = ulTaskGetRunTimeCounter(task_2);
+    
+    printf("Task1 runtime: %lu, Task2 runtime: %lu, ratio: %.2f\n",
+       time_1, time_2, (float)time_1 / (float)(time_2 + 1));
+
+    vTaskDelete(task_1);
+    vTaskDelete(task_2);
 }
+
+void test_busy_priority(void)
+{
+    TaskHandle_t task_1;
+    TaskHandle_t task_2;
+
+    xTaskCreate(busy_busy, "task_1", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY+2, &task_1);
+    xTaskCreate(busy_busy, "task_2", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY+1, &task_2);
+
+    vTaskDelay(200);
+
+    configRUN_TIME_COUNTER_TYPE time_1 = ulTaskGetRunTimeCounter(task_1);
+    configRUN_TIME_COUNTER_TYPE time_2 = ulTaskGetRunTimeCounter(task_2);
+    
+    printf("Task1 runtime: %lu, Task2 runtime: %lu, ratio: %.2f\n",
+       time_1, time_2, (float)time_1 / (float)(time_2 + 1));
+
+    vTaskDelete(task_1);
+    vTaskDelete(task_2);
+}
+
+void test_yield_priority(void)
+{
+    TaskHandle_t task_1;
+    TaskHandle_t task_2;
+
+    xTaskCreate(busy_yield, "task_1", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY+2, &task_1);
+    xTaskCreate(busy_yield, "task_2", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY+1, &task_2);
+
+    vTaskDelay(200);
+
+    configRUN_TIME_COUNTER_TYPE time_1 = ulTaskGetRunTimeCounter(task_1);
+    configRUN_TIME_COUNTER_TYPE time_2 = ulTaskGetRunTimeCounter(task_2);
+    
+    printf("Task1 runtime: %lu, Task2 runtime: %lu, ratio: %.2f\n",
+       time_1, time_2, (float)time_1 / (float)(time_2 + 1));
+
+    vTaskDelete(task_1);
+    vTaskDelete(task_2);
+}
+
 
 void supervisor(void *params)
 {
-    while (1) {
+    while(1){
         sleep_ms(5000); // Give time for TTY to attach.
         printf("Start tests\n");
         UNITY_BEGIN();
         RUN_TEST(test_priority_inversion);
         RUN_TEST(test_priority_inheritance);
         RUN_TEST(test_busy_busy);
+        RUN_TEST(test_busy_yield);
+        RUN_TEST(test_busy_both);
+        RUN_TEST(test_busy_priority);
+        RUN_TEST(test_yield_priority);
         UNITY_END();
     }
 }
